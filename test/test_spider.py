@@ -1,5 +1,4 @@
 # coding:utf-8
-from __future__ import absolute_import, unicode_literals
 import asyncio
 from jspider.spider.spider import Spider
 from jspider.downloader.aiohttp_downloader import AioHttpDownloader

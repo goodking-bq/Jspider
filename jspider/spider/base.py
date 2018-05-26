@@ -7,11 +7,12 @@ __date__ = '2018/5/26'
 
 
 class BaseSpider(object):
-    def __init__(self, downloader):
+    def __init__(self, downloader, queue_class=None):
         self.name = ''
         self.logger = None
         self.downloader = downloader()
-
+        self.queue_class = queue_class
+        self.queue = None
         self.set_logger()
 
     def set_logger(self):

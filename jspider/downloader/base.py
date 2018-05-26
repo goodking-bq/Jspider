@@ -11,7 +11,7 @@ class BaseDownloader(object):
         self.logger = None
         self.set_logger()
 
-    async def download(self, spider, url, proxy=None, user_agent=None):
+    async def download(self, spider, request, proxy=None, user_agent=None):
         pass
 
     def set_logger(self):
