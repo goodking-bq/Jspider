@@ -2,6 +2,8 @@
 from __future__ import absolute_import, unicode_literals
 from jspider.spider.base import BaseSpider
 from jspider.http.request import Request
+import asyncio
+from concurrent.futures import ProcessPoolExecutor
 
 __author__ = "golden"
 __date__ = '2018/5/26'
@@ -13,23 +15,25 @@ class Spider(BaseSpider):
 
     async def start_requests(self):
         for url in self.start_urls:
-            self.queue.push(await self.make_request(url))
+            await self.request_queue.push(await self.make_request(url))
 
     async def make_request(self, url):
         return Request(url, self.parse)
 
     async def run(self):
         self.logger.info("spider starting ....")
-        self.queue = self.queue_class(self)
-        self.start_requests()
-        while self.doing():
-            pass
-        for url in self.start_urls:
-            html = await self.downloader.download(self, url)
-            self.logger.debug(html)
+        await self.start_requests()
+        asyncio.ensure_future(self.downloader.start())
+        asyncio.ensure_future(self.pipe_line.start())
+        self.logger.debug('starting success!')
+
+        # for url in self.start_urls:
+        #     # html = await self.downloader_cls().download(self, url)
+        #     self.logger.debug(url)
 
     async def parse(self, response):
-        pass
+        await self.request_queue.push(await self.make_request('http://baidu.com'))
+        await self.item_queue.push(dict(a=1))
 
     def doing(self):
-        return not self.queue.is_empty()
+        return True

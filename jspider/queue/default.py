@@ -10,13 +10,14 @@ __create_date__ = '2018/5/26 23:27'
 class DefaultQueue(BaseQueue):
     def __init__(self, spider):
         super(DefaultQueue, self).__init__(spider)
-        self._queue = asyncio.Queue()
+        self._queue = []  # asyncio.Queue()
 
     async def push(self, request):
-        self._queue.put_nowait(request)
+        self._queue.append(request)
 
     async def pop(self):
-        self._queue.get_nowait()
+        if not self.is_empty():
+            return self._queue.pop()
 
     def is_empty(self):
-        return self._queue.empty()
+        return len(self._queue) == 0
