@@ -19,9 +19,10 @@ class BasePipeLine(object):
     async def start(self):
         self.logger.debug('PipeLine starting ...')
         while self.spider.doing():
+            self.logger.debug('PipeLine starting ...')
             item = await self.spider.item_queue.pop()
             if not item:
-                await  asyncio.sleep(1)
+                await asyncio.sleep(1)
             else:
                 await self.process_item(item)
 

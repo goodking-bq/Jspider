@@ -20,12 +20,6 @@ class Spider(BaseSpider):
     async def make_request(self, url):
         return Request(url, self.parse)
 
-    async def run(self):
-        self.logger.info("spider starting ....")
-        await self.start_requests()
-        asyncio.ensure_future(self.downloader.start())
-        asyncio.ensure_future(self.pipe_line.start())
-        self.logger.debug('starting success!')
 
         # for url in self.start_urls:
         #     # html = await self.downloader_cls().download(self, url)
