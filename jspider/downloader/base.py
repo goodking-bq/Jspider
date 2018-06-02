@@ -9,6 +9,7 @@ __date__ = '2018/5/26'
 
 class BaseDownloader(object):
     def __init__(self, spider):
+        self.has_done = False
         self.logger = None
         self.set_logger()
         self.spider = spider
@@ -29,3 +30,5 @@ class BaseDownloader(object):
             else:
                 response = await self.download(request)
                 await request.callback(response)
+        self.logger.info('Downloader stop')
+        self.has_done = True

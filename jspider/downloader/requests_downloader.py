@@ -6,6 +6,9 @@ from jspider.http.response import Response
 
 __author__ = "golden"
 __date__ = '2018/5/29'
+"""
+requests 不是异步库，虽然可以运行，但是会先把所有的request处理了再处理item
+"""
 
 
 class RequestsDownloader(BaseDownloader):

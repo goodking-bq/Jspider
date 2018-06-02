@@ -5,13 +5,16 @@ from jspider.utils.loader import load_class
 import asyncio
 from jspider.logger import setup_logger
 import os
+from jspider.http import Request
 
 __author__ = "golden"
 __date__ = '2018/5/26'
 
 
 class BaseSpider(object):
-    def __init__(self, downloader_cls, queue_cls='jspider.queue.DefaultQueue',
+    start_urls = []
+
+    def __init__(self, downloader_cls='jspider.downloader.AioHttpDownloader', queue_cls='jspider.queue.DefaultQueue',
                  pipe_line_cls='jspider.pipeline.ConsolePipeLine'):
         self.name = ''
         self.logger = None
@@ -39,16 +42,23 @@ class BaseSpider(object):
         self.setup_logger()
 
     async def start_requests(self):
+        for url in self.start_urls:
+            await self.make_request(url)
+
+    async def parse(self, response):
         raise NotImplementedError
+
+    async def make_request(self, url):
+        await self.request_queue.push(Request(url, self.parse))
 
     def run(self):
         self.logger.info("spider starting ....")
+        loop = asyncio.get_event_loop()
         asyncio.ensure_future(self.start_requests())
-
         asyncio.ensure_future(self.pipe_line.start())
         asyncio.ensure_future(self.downloader.start())
+        asyncio.ensure_future(self._check_done(loop))
         self.logger.debug('starting success!')
-        loop = asyncio.get_event_loop()
         try:
             loop.run_forever()
         except KeyboardInterrupt as e:
@@ -57,3 +67,16 @@ class BaseSpider(object):
             loop.run_forever()
         finally:
             loop.close()
+        self.logger.debug('stop success!')
+
+    def doing(self):
+        return not (self.item_queue.is_empty() and self.response_queue.is_empty() and self.request_queue.is_empty())
+
+    def done(self):
+        return self.downloader.has_done and self.pipe_line.has_done
+
+    async def _check_done(self, loop):
+        while not self.done():
+            await asyncio.sleep(0.1)
+        asyncio.gather(*asyncio.Task.all_tasks()).cancel()
+        loop.stop()

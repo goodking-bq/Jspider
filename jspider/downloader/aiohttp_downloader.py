@@ -15,14 +15,15 @@ class AioHttpDownloader(BaseDownloader):
         self.spider.session = None
 
     async def download(self, request, proxy=None, user_agent=None):
-        await self.set_session()
-        # async with self.spider.session as session:
-        async with self.spider.session.get(request.url) as response:
-            status, body = response.status, await response.text()
-            # await  request.callback(Response(response.url, body, status, request))
-            return Response(response.url, body, status, request)
+        # self.set_session()
+        async with aiohttp.ClientSession() as session:
+            async with session.get(request.url) as response:
+                status, body = response.status, await response.text()
+                # await  request.callback(Response(response.url, body, status, request))
+                print('download ' + request.url)
+                return Response(request.url, body, status, request)
 
-    async def set_session(self):
+    def set_session(self):
         if not self.spider.session:
             session = aiohttp.ClientSession()
             self.spider.session = session

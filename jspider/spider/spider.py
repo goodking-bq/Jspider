@@ -10,24 +10,4 @@ __date__ = '2018/5/26'
 
 
 class Spider(BaseSpider):
-    start_urls = ['http://www.baidu.com']
-    name = 'spider'
-
-    async def start_requests(self):
-        for url in self.start_urls:
-            await self.request_queue.push(await self.make_request(url))
-
-    async def make_request(self, url):
-        return Request(url, self.parse)
-
-
-        # for url in self.start_urls:
-        #     # html = await self.downloader_cls().download(self, url)
-        #     self.logger.debug(url)
-
-    async def parse(self, response):
-        await self.request_queue.push(await self.make_request('http://baidu.com'))
-        await self.item_queue.push(dict(a=1))
-
-    def doing(self):
-        return True
+    pass
