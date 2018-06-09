@@ -11,6 +11,10 @@ __author__ = "golden"
 __date__ = '2018/5/26'
 
 
+class BaseState(object):
+    pass
+
+
 class BaseSpider(object):
     start_urls = []
 
@@ -80,3 +84,10 @@ class BaseSpider(object):
             await asyncio.sleep(0.1)
         asyncio.gather(*asyncio.Task.all_tasks()).cancel()
         loop.stop()
+
+    async def tasks(self):
+        self.logger.info("spider starting ....")
+        asyncio.ensure_future(self.start_requests())
+        asyncio.ensure_future(self.pipe_line.start())
+        asyncio.ensure_future(self.downloader.start())
+        self.logger.debug('starting success!')

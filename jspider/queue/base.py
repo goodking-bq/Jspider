@@ -9,6 +9,7 @@ __create_date__ = '2018/5/26 23:20'
 class BaseQueue(object):
     def __init__(self, spider):
         self.spider = spider
+        self.state = State()
 
     async def push(self, request):
         raise NotImplementedError
