@@ -29,4 +29,4 @@ def web(obj, host, port, debug):
     obj.manager.add_web(host, port, debug)
     obj.manager.run()
 
-
+ 
