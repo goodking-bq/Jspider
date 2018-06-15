@@ -8,18 +8,23 @@ __date__ = '2018/5/29'
 
 
 class BasePipeLine(object):
-    def __init__(self, spider):
+    def __init__(self, spider=None):
         self.has_done = False
         self.spider = spider
         self.logger = None
         self.set_logger()
 
+    @classmethod
+    def from_spider(cls, spider):
+        pipe = cls(spider)
+        return pipe
+
     async def process_item(self, item):
-        raise NotImplementedError
+        self.logger.info(item)
 
     async def start(self):
         self.logger.debug('PipeLine starting ...')
-        while self.spider.doing() or not self.spider.downloader.has_done:
+        while await self.spider.doing() or not self.spider.downloader.has_done:
             item = await self.spider.item_queue.pop()
             if not item:
                 await asyncio.sleep(1)

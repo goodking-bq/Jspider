@@ -15,3 +15,6 @@ class Request(object):
     def set_logger(self):
         self.logger = getLogger(self.__class__.__name__)
         self.logger.debug("{name} setup success.".format(name=self.__class__.__name__))
+
+    def __str__(self):
+        return self.url

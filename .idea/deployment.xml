@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
-  <component name="PublishConfigData" autoUpload="Always" serverName="localhost">
+  <component name="PublishConfigData" autoUpload="Always" serverName="193.168.4.101">
     <serverData>
-      <paths name="localhost">
+      <paths name="193.168.4.101">
         <serverdata>
           <mappings>
-            <mapping deploy="jspider" local="$PROJECT_DIR$" web="/jspider" />
+            <mapping deploy="/jspider" local="$PROJECT_DIR$" web="/" />
           </mappings>
         </serverdata>
       </paths>

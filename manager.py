@@ -6,4 +6,5 @@ __author__ = "golden"
 __date__ = '2018/6/4'
 if __name__ == '__main__':
     manager = Manager()
-    manager.list_spiders()
+    spider = manager.setup_spider('qb')
+    spider.run()

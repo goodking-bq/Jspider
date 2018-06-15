@@ -1,15 +1,14 @@
 # coding:utf-8
 from __future__ import absolute_import, unicode_literals
 from jspider.spider import Spider
-import asyncio
-from jspider.manager import Manager
 
 __author__ = "golden"
-__date__ = '2018/6/2'
+__date__ = '2018/6/4'
 
 
 class QbSpider(Spider):
-    name = 'qb'
+    """糗百"""
+    name = "qb"
     start_urls = ['https://www.qiushibaike.com/']
 
     async def parse(self, response):
@@ -24,8 +23,5 @@ class QbSpider(Spider):
             await self.make_request(url)
 
 
-if __name__ == '__main__':
-    manager = Manager()
-    sp = QbSpider()
-    manager.add_spider(sp)
-    manager.run()
+class Tspider(object):
+    name = "tspider"

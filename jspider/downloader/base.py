@@ -23,12 +23,15 @@ class BaseDownloader(object):
 
     async def start(self):
         self.logger.debug('Downloader starting ...')
-        while self.spider.doing():
+        await self.spider.request_queue.async_clean()
+        while await self.spider.doing():
             request = await self.spider.request_queue.pop()
             if not request:
                 await asyncio.sleep(1)
             else:
                 response = await self.download(request)
-                await request.callback(response)
+                callback = getattr(self.spider, request.callback)
+                await callback(response)
+        await self.spider.request_queue.async_clean()
         self.logger.info('Downloader stop')
         self.has_done = True
