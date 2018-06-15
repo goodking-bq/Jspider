@@ -45,7 +45,6 @@ def loop_option(f):
 
 def debug_option(f):
     def callback(ctx, param, value):
-        print('debug', value)
         pub = ctx.ensure_object(Public)
         pub.debug = value
         pub.loop.set_debug(value)
