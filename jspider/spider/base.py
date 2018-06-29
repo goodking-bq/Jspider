@@ -12,7 +12,8 @@ __date__ = '2018/5/26'
 
 
 class BaseState(object):
-    pass
+    def __init__(self):
+        pass
 
 
 class BaseSpider(object):
@@ -20,7 +21,7 @@ class BaseSpider(object):
     name = ""
     setting = 'setting.py'
 
-    def __init__(self, config=None, project_path=None):
+    def __init__(self, config=None, project_path=None, run_forever=False):
         self.logger = None
         self.project_path = project_path
         self.config = Config()
@@ -30,6 +31,7 @@ class BaseSpider(object):
         self.downloader = None
         self.response_queue = None
         self.pipe_line = None
+        self.run_forever = run_forever
 
     def setup_logger(self):
         setup_logger(os.path.dirname(os.path.abspath(__file__)), 'main')
@@ -68,9 +70,6 @@ class BaseSpider(object):
     async def make_request(self, url):
         await self.request_queue.push(Request(url, 'parse'))
 
-    def run_forever(self):
-        pass
-
     def run(self):
         loop = asyncio.get_event_loop()
         asyncio.ensure_future(self.start_requests())
@@ -89,7 +88,9 @@ class BaseSpider(object):
         self.logger.debug('stop success!')
 
     async def doing(self):
-        return not (
+        """
+        """
+        return self.run_forever or not (
                 await self.item_queue.is_empty() and await self.response_queue.is_empty() and await self.request_queue.is_empty())
 
     def done(self):

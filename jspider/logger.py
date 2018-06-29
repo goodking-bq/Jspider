@@ -25,10 +25,15 @@ def setup_logger(path_dir, name):
         'disable_existing_loggers': False,
         'formatters': {
             'standard': {
-                'format': standard_format
+                'format': '[%(asctime)s][%(threadName)s:%(thread)d][task_id:%(name)s][%(filename)s:%(lineno)d]' \
+                          '[%(levelname)s][%(message)s]',
+                "datefmt": "[%Y-%m-%d %H:%M:%S %z]",
+                "class": "logging.Formatter"
             },
             'simple': {
-                'format': simple_format
+                "format": "%(asctime)s [%(process)d] [%(levelname)s] %(message)s",
+                "datefmt": "[%Y-%m-%d %H:%M:%S %z]",
+                "class": "logging.Formatter"
             },
         },
         'filters': {},
@@ -37,13 +42,13 @@ def setup_logger(path_dir, name):
             'console': {
                 'level': 'DEBUG',
                 'class': 'logging.StreamHandler',  # 打印到屏幕
-                'formatter': 'simple'
+                'formatter': 'standard'
             },
             # 打印到文件的日志,收集info及以上的日志
             'default': {
                 'level': 'DEBUG',
                 'class': 'logging.handlers.RotatingFileHandler',  # 保存到文件
-                'formatter': 'standard',
+                'formatter': 'simple',
                 'filename': logfile_path,  # 日志文件
                 'maxBytes': 1024 * 1024 * 5,  # 日志大小 5M
                 'backupCount': 5,

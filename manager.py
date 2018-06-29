@@ -7,5 +7,7 @@ __date__ = '2018/6/4'
 if __name__ == '__main__':
     manager = Manager()
     spider = manager.setup_spider('qb')
-    manager.add_spider(spider)
-    manager.run_forever()
+    spider.run_forever = False
+    spider.run()
+    # manager.add_spider(spider)
+    # manager.run_forever()

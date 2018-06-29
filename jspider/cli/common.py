@@ -1,7 +1,7 @@
 # coding:utf-8
 from __future__ import absolute_import, unicode_literals
 import click, asyncio
-from jspider.manager import Manager
+from jspider.manager import SpiderManager
 
 __author__ = "golden"
 __date__ = '2018/6/11'
@@ -18,7 +18,7 @@ class Public(object):
 def spider_path_option(f):
     def callback(ctx, param, spider_path):
         pub = ctx.ensure_object(Public)
-        pub.manager = Manager(pub.loop, spider_path=spider_path)
+        pub.manager = SpiderManager(pub.loop, spider_path=spider_path)
         return spider_path
 
     return click.option('--spider-path', type=click.Path(exists=True, dir_okay=True), default='./spiders',

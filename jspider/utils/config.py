@@ -9,9 +9,6 @@ __date__ = '2018/6/13'
 class Config(dict):
     def __init__(self, defaults=None):
         super().__init__(defaults or {})
-        self.DOWNLOADER_CLS = 'jspider.downloader.AioHttpDownloader'
-        self.QUEUE_CLS = 'jspider.queue.DefaultQueue'
-        self.PIPE_LINE_CLS = 'jspider.pipeline.ConsolePipeLine'
 
     def __getattr__(self, attr):
         try:

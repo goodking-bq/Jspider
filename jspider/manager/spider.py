@@ -1,21 +1,20 @@
 # coding:utf-8
 from __future__ import absolute_import, unicode_literals
-from jspider.web.app import app
+from jspider.web.app import app_creator
 from jspider.spider.base import BaseSpider
+from jspider.utils import Config, lazy_load_module
 import asyncio
 from logging import getLogger
 import os, sys, inspect
 import importlib
 import pkgutil
-from jspider.utils.loader import lazy_load_module
 
 __author__ = "golden"
 __date__ = '2018/6/2'
 
 
-class Manager(object):
+class SpiderManager(object):
     def __init__(self, loop=None, spider_path='spiders'):
-        self.web_app = app
         self.loop = loop or asyncio.get_event_loop()
         self.logger = None
         self._spider_path = spider_path
@@ -25,22 +24,6 @@ class Manager(object):
     @staticmethod
     def add_spider(spider):
         asyncio.ensure_future(spider.tasks())
-
-    def add_web(self, host, port, debug):
-        server = app.create_server(host=host, port=port, debug=debug)
-        app.manager = self
-        asyncio.ensure_future(server)
-
-    def run(self, spider):
-        try:
-            spider.run()
-        except KeyboardInterrupt as e:
-            print(asyncio.gather(*asyncio.Task.all_tasks()).cancel())
-            self.loop.stop()
-            self.loop.run_forever()
-        finally:
-            self.loop.close()
-        self.logger.debug('stop success!')
 
     def run_forever(self):
         try:
@@ -59,7 +42,7 @@ class Manager(object):
 
     @property
     def spider_path(self):
-        rel_path = os.path.dirname(sys.argv[0])
+        rel_path = os.path.abspath('.')
         spider_dir = os.path.join(rel_path, self._spider_path)
         return spider_dir
 
@@ -97,7 +80,7 @@ class Manager(object):
                     return sp['cls']
         return None
 
-    def setup_spider(self, spider):
+    def setup_spider(self, spider, **kwargs):
         """
         setup a spider
         :param spider: name
