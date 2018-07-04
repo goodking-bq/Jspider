@@ -7,12 +7,13 @@ name = "pypi"
 pyquery = "*"
 click = "*"
 aredis = "*"
-sanic = "*"
-sanic-restful = "*"
 psutil = "*"
 pyyaml = "*"
+sanic = "*"
+sanic_restful='*'
 
 [dev-packages]
+aoiklivereload = "*"
 
 [requires]
 python_version = "3.6"

@@ -10,26 +10,18 @@ __date__ = '2018/6/1'
 
 
 def app_creator(config):
-    app = Sanic()
+    app = Sanic(__name__)
     app.manager = None
-    app.config.from_object(config)
+    app.config.update(config)
+    app.static('/static', '/root/golden/jspider/jspider/web/dist')
     app.blueprint(bp)
 
     # app.config.from_pyfile()
     @app.route("/")
     async def index(request):
-        base = os.path.basename(__file__)
-        htm = open(os.path.basename(__file__))
-        return html('')
-
-    # @app.route("/")
-    # async def test(request):
-    #     spider = app.manager.setup_spider('qb')
-    #     if spider:
-    #         app.manager.add_spider(spider)
-    #     else:
-    #         print("spider {name} not exist".format(name='qb'))
-    #     return json({"hello": "world"})
+        htm = os.path.join(app.config['HOME_PATH'], 'jspider', 'web', 'dist', 'index.html')
+        with open(htm, 'r+') as f:
+            return html(f.read())
 
     @app.route('/login', methods=['POST'])
     async def login(request):

@@ -14,11 +14,12 @@ __date__ = '2018/6/2'
 
 
 class SpiderManager(object):
-    def __init__(self, loop=None, spider_path='spiders'):
+    def __init__(self, loop=None, spider_path='spiders', home_path=None):
         self.loop = loop or asyncio.get_event_loop()
         self.logger = None
         self._spider_path = spider_path
         self.tasks = []
+        self.home_path = home_path
         self.setup_logger()
 
     @staticmethod
@@ -42,7 +43,10 @@ class SpiderManager(object):
 
     @property
     def spider_path(self):
-        rel_path = os.path.abspath('.')
+        if self.home_path:
+            rel_path = self.home_path
+        else:
+            rel_path = os.path.abspath('.')
         spider_dir = os.path.join(rel_path, self._spider_path)
         return spider_dir
 

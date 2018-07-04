@@ -72,4 +72,12 @@ def start(pub, **kwargs):
     manager.start()
 
 
+@cli.command()
+@click.option('-c', '--config-file', type=click.Path(exists=True, dir_okay=True), default='config.py')
+def stop(**kwargs):
+    """stop"""
+    manager = Multiprocessing(config=kwargs.get('config_file'))
+    manager.stop()
+
+
 cli.add_command(list_obj)

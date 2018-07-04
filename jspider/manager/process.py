@@ -53,10 +53,26 @@ class WebProcess(multiprocessing.Process):
         self.loop = None
         self.daemon = True
         self.name = 'web-server'
+        self.spider_path = 'spiders'
+        self.home_path = None
+
 
     def run(self):
+        if self.home_path not in sys.path:
+            # Add to `sys.path`.
+            #
+            # This aims to save user setting PYTHONPATH when running this demo.
+            #
+            sys.path.append(self.home_path)
+        from aoiklivereload import LiveReloader
+
+        reloader = LiveReloader()
+
+        reloader.start_watcher_thread()
+        self.app_option['HOME_PATH'] = self.home_path
+        self.app_option['SPIDER_PATH'] = self.spider_path
         app = app_creator(self.app_option)
-        app.manager = SpiderManager(spider_path='spiders')
+        app.manager = SpiderManager(spider_path=self.spider_path, home_path=self.home_path)
         server = app.create_server(**self.server_option)
         self.loop = asyncio.new_event_loop()
         asyncio.set_event_loop(self.loop)
@@ -77,7 +93,6 @@ class MasterProcess(multiprocessing.Process):
 
         i = 0
         while True:
-            print('run ing %s' % i)
             time.sleep(3)
             # p = multiprocessing.Process(target=test1, args=[i])
             # p.daemon = True
@@ -119,6 +134,8 @@ class Multiprocessing(Daemon):
             if child == 'web':
                 task = WebProcess(server_option=self.config.get('WEB_SERVER'),
                                   app_option=self.config.get('WEB_CONFIG'))
+                task.home_path = self.home_path
+                task.spider_path = self.config.get('SPIDER_PATH')
             else:
                 if self.children[child]['async']:
                     task = AsyncProcess(target=self.children[child]['target'], name=self.children[child]['name'],
@@ -167,3 +184,17 @@ class Multiprocessing(Daemon):
     def write_pid_file(self):
         with open(self.pid_file, 'w+') as f:
             yaml.dump_all([self.pid], f, canonical=False, default_flow_style=False)
+
+    def _load_pid(self):
+        with open(self.pid_file, 'r+') as f:
+            self._pid = yaml.load(f)
+
+    def stop(self):
+        self._load_pid()
+        pid = self.pid
+        main_pid = list(pid.keys())[0]
+        for sub in pid[main_pid]:
+            sub_pid = list(sub.values())[0]
+            os.kill(sub_pid, signal.SIGTERM)
+        os.kill(main_pid, signal.SIGTERM)
+        self.remove_pid_file()
