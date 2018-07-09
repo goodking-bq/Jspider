@@ -1,14 +1,12 @@
 # coding:utf-8
 from __future__ import absolute_import, unicode_literals
 from sanic.blueprints import Blueprint
-from sanic_restful import Api
-from . import spider
+from . import spider, other
 
 __author__ = "golden"
 __date__ = '2018/6/25'
 
 bp = Blueprint(__name__, '/api/')
-api = Api(bp)
-
-api.add_resource(spider.ProjectsApi, 'projects/')
-api.add_resource(spider.SpidersApi, 'spiders/')
+bp.add_route(spider.SpidersApi.as_view(), 'spiders/')
+bp.add_route(spider.ProjectsApi.as_view(), 'projects/')
+bp.add_route(other.MenusApi.as_view(), 'menus/')

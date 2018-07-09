@@ -1,18 +1,20 @@
 # coding:utf-8
 from __future__ import absolute_import, unicode_literals
-from sanic_restful import Resource
+from sanic.views import HTTPMethodView
+from sanic.response import json
 
 __author__ = "golden"
 __date__ = '2018/6/25'
 
 
-class ProjectsApi(Resource):
+class ProjectsApi(HTTPMethodView):
     async def get(self, req):
         app = req.app
-        return app.manager.list_projects()
+        res = app.manager.list_projects()
+        return json(res)
 
 
-class SpidersApi(Resource):
+class SpidersApi(HTTPMethodView):
     async def get(self, req):
         app = req.app
-        return app.manager.list_spiders()
+        return json(app.manager.list_spiders())

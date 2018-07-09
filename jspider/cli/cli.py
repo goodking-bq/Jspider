@@ -80,4 +80,14 @@ def stop(**kwargs):
     manager.stop()
 
 
+@cli.command()
+@click.option('-c', '--config-file', type=click.Path(exists=True, dir_okay=True), default='config.py')
+def restart(**kwargs):
+    """restart """
+    manager = Multiprocessing(config=kwargs.get('config_file'))
+    manager.stop()
+    manager.add_web()
+    manager.start()
+
+
 cli.add_command(list_obj)

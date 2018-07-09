@@ -4,6 +4,7 @@ from sanic import Sanic
 from sanic.response import html, json
 import os
 from .api import bp
+from sanic_cors import CORS
 
 __author__ = "golden"
 __date__ = '2018/6/1'
@@ -15,6 +16,7 @@ def app_creator(config):
     app.config.update(config)
     app.static('/static', '/root/golden/jspider/jspider/web/dist')
     app.blueprint(bp)
+    CORS(app)
 
     # app.config.from_pyfile()
     @app.route("/")

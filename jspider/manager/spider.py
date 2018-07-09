@@ -53,7 +53,15 @@ class SpiderManager(object):
     def list_projects(self):
         spiders = []
         for _, package_name, _ in pkgutil.iter_modules([self.spider_path]):
-            spiders.append(package_name)
+            project = os.path.join(self.spider_path, package_name, '__init__.py')
+            spec = importlib.util.spec_from_file_location(package_name,
+                                                          project)
+            module = spec.loader.load_module()
+            print(module.__doc__)
+            spiders.append({'package': package_name, 'name': module.__name__, 'author': module.__author__,
+                            'create_date': module.__date__, 'description': module.__description__,
+                            'version': module.__version__,
+                            'doc': module.__doc__})
         return spiders
 
     def list_spiders(self, cls=False):
