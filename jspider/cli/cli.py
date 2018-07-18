@@ -19,27 +19,32 @@ def cli():
 @cli.command()
 @click.option('-H', '--host', default='127.0.0.1', help="bind address")
 @click.option('-P', '--port', default=5000, help="bind port")
+@click.option('-c', '--config-file', type=click.Path(exists=True, dir_okay=True), default='config.py')
 @common_options
 @common_pass
-def web_server(pub, host, port):
+def web_server(pub, host, port, config_file):
     """run http server"""
-    pub.manager.add_web(host, port, pub.debug)
-    pub.manager.run_forever()
+    manager = Multiprocessing(config=config_file)
+    manager.config['WEB_SERVER']['host'] = host
+    manager.config['WEB_SERVER']['port'] = port
+    manager.add_web()
+    manager.start()
 
 
 @cli.command()
-@click.argument('name')
+@click.argument('project')
+@click.argument('spider')
 @click.option('-f', '--run-forever', is_flag=True, help="run forever")
 @click.option('-D', '--daemon', is_flag=True, help="run background")
 @common_options
 @common_pass
-def run(pub, name, run_forever, daemon):
+def run(pub, project, spider, run_forever, daemon):
     """run spider"""
-    spider = pub.manager.setup_spider(name, run_forever=run_forever)
+    spider = pub.manager.setup_spider(project, spider)
     if spider:
         spider.run()
     else:
-        print("spider {name} not exist".format(name=name))
+        print("spider {project}.{name} not exist".format(project, spider))
 
 
 @cli.command()

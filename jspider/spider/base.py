@@ -1,7 +1,7 @@
 # coding:utf-8
 from __future__ import absolute_import, unicode_literals
 from logging import getLogger
-from jspider.utils import load_class, Config, lazy_load_class, lazy_load_module
+from jspider.utils import Loader, Config
 import asyncio
 from jspider.logger import setup_logger
 import os, sys
@@ -32,6 +32,7 @@ class BaseSpider(object):
         self.response_queue = None
         self.pipe_line = None
         self.run_forever = run_forever
+        self.class_loader = None
 
     def setup_logger(self):
         setup_logger(os.path.dirname(os.path.abspath(__file__)), 'main')
@@ -39,23 +40,25 @@ class BaseSpider(object):
         self.logger.debug("{name} setup success.".format(name=self.__class__.__name__))
 
     def setup_spider(self):
-        self.request_queue = lazy_load_class(self.config.get('REQUEST_QUEUE_CLS'), self.project_path).from_spider(
+        self.request_queue = self.class_loader(self.config.get('REQUEST_QUEUE_CLS')).from_spider(
             self,
             name='request',
             data_format='pickle',
             data_filter=True)
-        self.item_queue = lazy_load_class(self.config.get('QUEUE_CLS'), self.project_path).from_spider(self,
-                                                                                                       'item')
-        self.response_queue = lazy_load_class(self.config.get('QUEUE_CLS'), self.project_path).from_spider(self,
-                                                                                                           'response')
-        self.downloader = lazy_load_class(self.config.get('DOWNLOADER_CLS'), self.project_path)(self)
-        self.pipe_line = lazy_load_class(self.config.get('PIPE_LINE_CLS'), self.project_path).from_spider(self)
+        self.item_queue = self.class_loader(self.config.get('QUEUE_CLS')).from_spider(self,
+                                                                                      'item')
+        self.response_queue = self.class_loader(self.config.get('QUEUE_CLS')).from_spider(self,
+                                                                                          'response')
+        self.downloader = self.class_loader(self.config.get('DOWNLOADER_CLS'))(self)
+        self.pipe_line = self.class_loader(self.config.get('PIPE_LINE_CLS')).from_spider(self)
         self.setup_logger()
 
     @classmethod
     def setup_from_path(cls, path):  # setting is a py module
         spider = cls(project_path=path)
-        setting_obj = lazy_load_module(os.path.join(path, 'config.py'))
+        loader = Loader(from_path=path)
+        spider.class_loader = loader.lazy_load_class
+        setting_obj = loader.lazy_load_module('config')
         spider.config.from_object(setting_obj)
         spider.setup_spider()
         return spider
@@ -72,7 +75,8 @@ class BaseSpider(object):
 
     def run(self):
         loop = asyncio.get_event_loop()
-        asyncio.ensure_future(self.start_requests())
+        loop.run_until_complete(asyncio.gather(self.start_requests()))
+        # asyncio.ensure_future(self.start_requests())
         asyncio.ensure_future(self.pipe_line.start())
         asyncio.ensure_future(self.downloader.start())
         asyncio.ensure_future(self._check_done(loop))

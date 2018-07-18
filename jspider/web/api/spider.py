@@ -10,11 +10,30 @@ __date__ = '2018/6/25'
 class ProjectsApi(HTTPMethodView):
     async def get(self, req):
         app = req.app
-        res = app.manager.list_projects()
+        res = app.manager.projects()
         return json(res)
 
 
-class SpidersApi(HTTPMethodView):
+class ProjectApi(HTTPMethodView):
     async def get(self, req):
         app = req.app
-        return json(app.manager.list_spiders())
+        file = req.args.get('file')
+        if file:
+            pass
+        else:
+            return json('')
+
+
+class SpidersApi(HTTPMethodView):
+    async def get(self, req, project):
+        app = req.app
+        return json(app.manager.spiders(project))
+
+
+class SpiderApi(HTTPMethodView):
+    async def get(self, req, project, spider):
+        pass
+
+    async def put(self, req, project, spider):
+        "run a spider"
+        pass

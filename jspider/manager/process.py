@@ -3,8 +3,8 @@ from __future__ import absolute_import, unicode_literals
 import multiprocessing
 import asyncio
 from .deamon import Daemon
-import os, yaml, sys
-import time
+import os, yaml, sys, requests
+import time, platform
 import signal
 from jspider.web.app import app_creator
 from jspider.utils import Config
@@ -56,7 +56,6 @@ class WebProcess(multiprocessing.Process):
         self.spider_path = 'spiders'
         self.home_path = None
 
-
     def run(self):
         if self.home_path not in sys.path:
             # Add to `sys.path`.
@@ -64,7 +63,7 @@ class WebProcess(multiprocessing.Process):
             # This aims to save user setting PYTHONPATH when running this demo.
             #
             sys.path.append(self.home_path)
-        from aoiklivereload import LiveReloader
+        from aoiklivereload.aoiklivereload import LiveReloader
 
         reloader = LiveReloader()
 
@@ -81,23 +80,31 @@ class WebProcess(multiprocessing.Process):
 
 
 class MasterProcess(multiprocessing.Process):
-    def __init__(self):
+    def __init__(self, config):
         super(MasterProcess, self).__init__()
         self.name = "manager"
+        self.config = config
+        signal.signal(signal.SIGALRM, self.heart_beat)
+        signal.alarm(2)
 
     def run(self):
-        def test1(i):
-            while True:
-                print('sub run ing %s' % i)
-                time.sleep(3)
-
-        i = 0
         while True:
             time.sleep(3)
             # p = multiprocessing.Process(target=test1, args=[i])
             # p.daemon = True
             # p.start()
             # i += 1
+
+    def heart_beat(self, sig, frame):
+        signal.alarm(2)
+        node_info = dict(name=self.config.get('NODE') or platform.node(), sys_type=sys.platform,
+                         sys_version=platform.platform())
+        res = requests.get(
+            'http://{WEB_DOMAIN}:{WEB_SERVER[port]}/heart_beat/'.format(**self.config),
+            params=node_info).json()
+        act = res.get('status')
+        if act == 1:  # 需要更新文件
+            pass
 
 
 class Multiprocessing(Daemon):
@@ -106,6 +113,8 @@ class Multiprocessing(Daemon):
     - 主进程
     - 子进程
     """
+    SPIDER_NODE = True
+    WEB_NODE = False
 
     def __init__(self, config, home_path=None):
         self.config = Config()
@@ -126,10 +135,11 @@ class Multiprocessing(Daemon):
         self._pid = {}
 
     def run(self):
-        task = MasterProcess()
-        task.start()
-        self.tasks.append(task)
-        self.pid = {task.name: task.pid}
+        if self.SPIDER_NODE:
+            task = MasterProcess(self.config)
+            task.start()
+            self.tasks.append(task)
+            self.pid = {task.name: task.pid}
         for child in self.children:
             if child == 'web':
                 task = WebProcess(server_option=self.config.get('WEB_SERVER'),
@@ -153,7 +163,6 @@ class Multiprocessing(Daemon):
             task.join()
         for process in self.tasks:
             process.terminate()
-        print('aaa')
         while True:
             for m in self.pid:
                 for name in self.pid[m]:
@@ -168,6 +177,7 @@ class Multiprocessing(Daemon):
 
     def add_web(self):
         self.children['web'] = True
+        self.SPIDER_NODE = False
 
     @property
     def pid(self):

@@ -33,5 +33,5 @@ class BaseDownloader(object):
                 callback = getattr(self.spider, request.callback)
                 await callback(response)
         await self.spider.request_queue.async_clean()
-        self.logger.info('Downloader stop')
+        self.logger.debug('Downloader stop')
         self.has_done = True

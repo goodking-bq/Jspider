@@ -5,3 +5,4 @@ a spider for my self ,just test
 
 - [ ] web
 - [ ] 
+- [ ] 同步

@@ -25,6 +25,7 @@ class BasePipeLine(object):
     async def start(self):
         self.logger.debug('PipeLine starting ...')
         while await self.spider.doing() or not self.spider.downloader.has_done:
+            self.logger.debug('download %s' % self.spider.downloader.has_done)
             item = await self.spider.item_queue.pop()
             if not item:
                 await asyncio.sleep(1)

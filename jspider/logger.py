@@ -25,7 +25,7 @@ def setup_logger(path_dir, name):
         'disable_existing_loggers': False,
         'formatters': {
             'standard': {
-                'format': '[%(asctime)s][%(threadName)s:%(thread)d][task_id:%(name)s][%(filename)s:%(lineno)d]' \
+                'format': '%(asctime)s][%(threadName)s:%(thread)d][task_id:%(name)s][%(filename)s:%(lineno)d' \
                           '[%(levelname)s][%(message)s]',
                 "datefmt": "[%Y-%m-%d %H:%M:%S %z]",
                 "class": "logging.Formatter"

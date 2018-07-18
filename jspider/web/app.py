@@ -9,6 +9,8 @@ from sanic_cors import CORS
 __author__ = "golden"
 __date__ = '2018/6/1'
 
+node_state = {}
+
 
 def app_creator(config):
     app = Sanic(__name__)
@@ -27,6 +29,16 @@ def app_creator(config):
 
     @app.route('/login', methods=['POST'])
     async def login(request):
-        return json(dict(token="asdfasdfasdf"))
+        return json(dict(token="token"))
+
+    @app.route('/heart_beat/', methods=['GET'])
+    async def heart_beat(req):
+        name = req.args.get('name')
+        sys_type = req.args.get('sys_type')
+        sys_version = req.args.get('sys_version')
+        if name not in node_state:
+            node_state[name] = {"sys_type": sys_type, 'sys_version': sys_version}
+            node_state[name].update(status=1)
+        return json({'name': name, 'status': node_state[name]['status']})  # 1需要更新
 
     return app

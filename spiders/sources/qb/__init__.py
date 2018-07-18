@@ -6,3 +6,4 @@ __author__ = "golden"
 __date__ = '2018/6/11'
 __description__ = "这是描述"
 __version__ = "1.0"
+__name__ = "qb"

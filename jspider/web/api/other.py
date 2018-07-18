@@ -24,4 +24,10 @@ class MenusApi(HTTPMethodView):
                 'icon': 'folder',
                 'name': 'Project',
             },
+            {
+                'title': '日志',
+                'group': 'apps',
+                'icon': 'folder',
+                'name': 'log',
+            },
         ])
