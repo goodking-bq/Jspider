@@ -20,7 +20,8 @@ WEB_SERVER = {
 }
 WEB_CONFIG = {  # key must upper
     "KEEP_ALIVE": True,
+    "AUTH_LOGIN_ENDPOINT": "login"
 }
 NODE = {
-    'name':''
+    'name': ''
 }

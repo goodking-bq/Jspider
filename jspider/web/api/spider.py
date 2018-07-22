@@ -32,7 +32,9 @@ class SpidersApi(HTTPMethodView):
 
 class SpiderApi(HTTPMethodView):
     async def get(self, req, project, spider):
-        pass
+        action=req.args.get('action')
+        spider = req.manager.setup_spider(project, spider)
+        await spider.start_requests()  # push url to request queue
 
     async def put(self, req, project, spider):
         "run a spider"

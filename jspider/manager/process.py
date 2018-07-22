@@ -102,10 +102,14 @@ class MasterProcess(multiprocessing.Process):
         res = requests.get(
             'http://{WEB_DOMAIN}:{WEB_SERVER[port]}/heart_beat/'.format(**self.config),
             params=node_info).json()
-        act = res.get('status')
-        if act == 1:  # 需要更新文件
-            pass
+        spider_state = res.get('spider_state', [])
+        for project in spider_state:
+            if project.get('need_update') == True:
+                pass
 
+    @staticmethod
+    def download_project(project):
+        req=requests.get()
 
 class Multiprocessing(Daemon):
     """
